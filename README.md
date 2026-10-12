@@ -1,3 +1,4 @@
+
 # StudyTrack — Student Assignment & Deadline Tracker
 
 A beginner-friendly mini-project prototype built with Python, Flask, HTML, CSS and SQLite.
@@ -33,3 +34,6 @@ HTML builds the page and forms. CSS styles the dashboard. Flask receives form su
 - This is a local academic prototype, not a production-ready multi-user service.
 - Before public deployment, change the Flask secret key, disable debug mode, add authentication and strengthen validation/security.
 - The first run needs an internet connection only if the Google Fonts import in the stylesheet is to load; the application itself works without it.
+
+# student-assignment-tracker
+
