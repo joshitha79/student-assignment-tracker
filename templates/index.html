@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StudyTrack | Assignment Planner</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">S</span><div><strong>StudyTrack</strong><small>Assignment & Deadline Tracker</small></div></div>
+    <span class="top-note">Stay organized. Submit on time.</span>
+  </header>
+  <main class="container">
+    <section class="welcome">
+      <div><p class="eyebrow">YOUR STUDY WORKSPACE</p><h1>Good work starts with a plan.</h1>
+      <p class="subtext">Keep every assignment, due date and task status in one simple place.</p></div>
+      <div class="today-chip">Today · {{ today }}</div>
+    </section>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}<div class="messages">{% for category, message in messages %}<div class="message {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+    {% endwith %}
+
+    <section class="stats">
+      <div class="stat-card"><span class="stat-label">Total assignments</span><strong>{{ stats.total }}</strong><span class="stat-foot">All tracked tasks</span></div>
+      <div class="stat-card"><span class="stat-label">Pending</span><strong>{{ stats.pending }}</strong><span class="stat-foot">Still to complete</span></div>
+      <div class="stat-card"><span class="stat-label">Completed</span><strong>{{ stats.completed }}</strong><span class="stat-foot">Work finished</span></div>
+      <div class="stat-card alert-card"><span class="stat-label">Overdue</span><strong>{{ stats.overdue }}</strong><span class="stat-foot">Past the due date</span></div>
+    </section>
+
+    <section class="main-grid">
+      <section class="panel add-panel">
+        <div class="panel-heading"><div><p class="eyebrow">QUICK ENTRY</p><h2>Add assignment</h2></div><span class="plus">+</span></div>
+        <form action="{{ url_for('add_assignment') }}" method="post" class="assignment-form">
+          <label>Assignment title<input name="title" required maxlength="120" placeholder="e.g. Network layer worksheet"></label>
+          <label>Subject<input name="subject" required maxlength="80" placeholder="e.g. Computer Networks"></label>
+          <label>Due date<input type="date" name="due_date" required></label>
+          <label>Description <span class="optional">(optional)</span><textarea name="description" rows="3" placeholder="Add a short note..."></textarea></label>
+          <button class="primary-btn" type="submit">＋ Add assignment</button>
+        </form>
+        <p class="form-tip">Tip: add a realistic due date so overdue tasks are easy to identify.</p>
+      </section>
+
+      <section class="panel list-panel">
+        <div class="panel-heading list-heading"><div><p class="eyebrow">YOUR TASKS</p><h2>Assignment list</h2></div><span class="count-pill">{{ stats.total }} tasks</span></div>
+        {% if assignments %}
+          <div class="assignment-list">
+          {% for a in assignments %}
+            <article class="task {% if a.status == 'Completed' %}task-done{% endif %}">
+              <div class="task-top">
+                <div class="task-main">
+                  <span class="subject">{{ a.subject }}</span>
+                  <h3>{{ a.title }}</h3>
+                  {% if a.description %}<p class="description">{{ a.description }}</p>{% endif %}
+                </div>
+                {% if a.status == 'Completed' %}<span class="status done">Completed</span>
+                {% elif a.overdue %}<span class="status overdue">Overdue</span>
+                {% else %}<span class="status pending">Pending</span>{% endif %}
+              </div>
+              <div class="task-bottom">
+                <span class="due">◷ Due {{ a.due_date }}</span>
+                <div class="task-actions">
+                  <form action="{{ url_for('toggle_assignment', assignment_id=a.id) }}" method="post"><button class="small-btn" type="submit">{{ 'Reopen' if a.status == 'Completed' else 'Complete' }}</button></form>
+                  <details class="edit-details"><summary>Edit</summary>
+                    <form class="edit-form" action="{{ url_for('edit_assignment', assignment_id=a.id) }}" method="post">
+                      <label>Title<input name="title" required value="{{ a.title }}"></label>
+                      <label>Subject<input name="subject" required value="{{ a.subject }}"></label>
+                      <label>Due date<input type="date" name="due_date" required value="{{ a.due_date }}"></label>
+                      <label>Description<textarea name="description" rows="2">{{ a.description or '' }}</textarea></label>
+                      <button class="small-btn" type="submit">Save changes</button>
+                    </form>
+                  </details>
+                  <form action="{{ url_for('delete_assignment', assignment_id=a.id) }}" method="post" onsubmit="return confirm('Delete this assignment?')"><button class="delete-btn" type="submit">Delete</button></form>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty-state"><div class="empty-icon">✓</div><h3>Your list is clear</h3><p>Add your first assignment using the form. It will appear here.</p></div>
+        {% endif %}
+      </section>
+    </section>
+    <footer>StudyTrack · Mini Project Prototype · Built with Python, Flask, HTML, CSS and SQLite</footer>
+  </main>
+</body>
+</html>
